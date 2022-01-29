@@ -1,1 +1,7 @@
+
+nvcc -V
+# should be cuda10!!!
+conda env list
+conda create -n keras215_py36 python=3.6 -y
+conda activate keras215_py36
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
