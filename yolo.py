@@ -15,7 +15,8 @@ from utils.utils import (cvtColor, get_anchors, get_classes, preprocess_input,
 from utils.utils_bbox import DecodeBox
 import keras2onnx
 import onnx
-
+from onnxsim import simplify
+import tensorflow as tf
 class YOLO(object):
     _defaults = {
         #--------------------------------------------------------------------------#
@@ -101,7 +102,8 @@ class YOLO(object):
         model_path = os.path.expanduser(self.model_path)
         assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
         
-        self.yolo_model = yolo_body([None, None, 3], self.anchors_mask, self.num_classes, self.backbone, self.alpha)
+        # self.yolo_model = yolo_body([None, None, 3], self.anchors_mask, self.num_classes, self.backbone, self.alpha)
+        self.yolo_model = yolo_body([416, 416, 3], self.anchors_mask, self.num_classes, self.backbone, self.alpha)
         self.yolo_model.load_weights(self.model_path)
         print('{} model, anchors, and classes loaded.'.format(model_path))
         #---------------------------------------------------------#
@@ -273,12 +275,22 @@ class YOLO(object):
     #   导出模型 onnx
     #---------------------------------------------------#
     def save2Onnx(self):
-        onnx_model = keras2onnx.convert_keras(self.yolo_model, self.yolo_model.name)
-        temp_model_file = './yolov4.onnx'
+        # 设置输入大小
+        onnx_model = keras2onnx.convert_keras(
+            model=self.yolo_model, 
+            name=self.yolo_model.name)
+        temp_model_file = 'yolov4.onnx'
+        
         onnx.save_model(onnx_model, temp_model_file)
-        print("save h5 to onnx sucessfully===============")
+        print("========================\nsave h5 to onnx sucessfully\n========================")
+
+        model_simp, check = simplify(onnx_model)
+        assert check, "Simplified ONNX model could not be validated"
+        onnx.save(model_simp, temp_model_file.split('.')[0]+ '-sim.onnx')
+        print('finished exporting onnx-sim.onnx')
+
 
 
 if __name__ == "__main__":
-    yolo = YOLO()
-    yolo.save2Onnx()
+    # yolo = YOLO()
+    # yolo.save2Onnx()
