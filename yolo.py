@@ -13,7 +13,8 @@ from nets.yolo import yolo_body
 from utils.utils import (cvtColor, get_anchors, get_classes, preprocess_input,
                          resize_image)
 from utils.utils_bbox import DecodeBox
-
+import keras2onnx
+import onnx
 
 class YOLO(object):
     _defaults = {
@@ -272,4 +273,12 @@ class YOLO(object):
     #   导出模型 onnx
     #---------------------------------------------------#
     def save2Onnx(self):
+        onnx_model = keras2onnx.convert_keras(self.yolo_model, self.yolo_model.name)
+        temp_model_file = './yolov4.onnx'
+        onnx.save_model(onnx_model, temp_model_file)
         pass
+
+
+if __name__ == "__main__":
+    pass
+    
