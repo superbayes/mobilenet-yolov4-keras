@@ -276,9 +276,9 @@ class YOLO(object):
         onnx_model = keras2onnx.convert_keras(self.yolo_model, self.yolo_model.name)
         temp_model_file = './yolov4.onnx'
         onnx.save_model(onnx_model, temp_model_file)
-        pass
+        print("save h5 to onnx sucessfully===============")
 
 
 if __name__ == "__main__":
-    pass
-    
+    yolo = YOLO()
+    yolo.save2Onnx()
